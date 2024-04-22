@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Interactive Circles with D3.js</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+<body>
+    <svg width="600" height="600"></svg>
+
+    <script>
+        // Create random data for the circles
+        const circlesData = Array.from({ length: 5 }, (_, i) => ({
+            radius: (i + 1) * 20, // increasing radius for concentric circles
+            color: d3.interpolateViridis(i * 0.2) // varying the color
+        }));
+
+        // Select the svg element on the page
+        const svg = d3.select('svg');
+
+        // Bind data to the circles and create them
+        svg.selectAll('circle')
+            .data(circlesData)
+            .enter()
+            .append('circle')
+            .attr('cx', 300) // center x-coordinate
+            .attr('cy', 300) // center y-coordinate
+            .attr('r', d => d.radius)
+            .style('fill', d => d.color)
+            .style('fill-opacity', 0.6)
+            .style('stroke', 'black');
+
+        // Add the click interaction
+        svg.selectAll('circle')
+            .on('click', function(event, d) {
+                // Generate a random color on click
+                d3.select(this)
+                  .style('fill', d3.interpolateCool(Math.random()));
+            });
+    </script>
+<body>
+    <svg width="600" height="600"></svg>
+
+    <script>
+        // Mock audio feature data (could be spectral centroid, zero crossing rate, etc.)
+        const audioFeatures = {
+            feature1: [0.1, 0.5, 0.9, 0.6, 0.2],
+            feature2: [0.2, 0.3, 0.7, 0.5, 0.1],
+            feature3: [0.5, 0.4, 0.3, 0.8, 0.7],
+            feature4: [0.9, 0.2, 0.4, 0.1, 0.6],
+            feature5: [0.7, 0.8, 0.1, 0.3, 0.4]
+        };
+
+        // Initial color scale
+        const colorScale = d3.scaleSequential(d3.interpolateViridis);
+
+        // Bind data to the circles and create them
+        svg.selectAll('circle')
+            .data(Object.entries(audioFeatures))
+            .enter()
+            .append('circle')
+            .attr('cx', 300) // center x-coordinate
+            .attr('cy', 300) // center y-coordinate
+            .attr('r', (d, i) => (i + 1) * 40) // increasing radius for concentric circles
+            .style('fill', d => colorScale(d[1][0])) // initial color from the first feature value
+            .style('fill-opacity', 0.6)
+            .style('stroke', 'black')
+            .each(function(d, i) {
+                // Store the feature data on the element for later access
+                this._featureData = d[1];
+            });
+
+        // Add the click interaction
+        svg.selectAll('circle')
+            .on('click', function(event) {
+                // This is the feature data stored on the element
+                const featureData = this._featureData;
+
+                // Move to the next feature value, and cycle back to the start if at the end
+                featureData.push(featureData.shift());
+
+                // Update the color of the circle based on the next feature value
+                d3.select(this)
+                  .transition() // Add a smooth transition effect
+                  .duration(500)
+                  .style('fill', colorScale(featureData[0]));
+            });
+    </script>
+</body>
+</html>
+
+
+
+
